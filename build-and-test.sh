@@ -4,7 +4,7 @@ tag="sharptalk:latest"
 
 docker build -t "$tag" .
 
-msg="hello world"
+msg=${1:-"hello world"}
 
 # echo "$msg" | ./docker-run.sh > asdf.pcm && \
 #   ffmpeg -y -f s16le -ar 11025 -ac 1 -i asdf.pcm asdf.wav && \

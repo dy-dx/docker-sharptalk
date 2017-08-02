@@ -19,9 +19,12 @@ RUN useradd -ms /bin/bash sharptalk
 USER sharptalk
 ENV WINEPREFIX /home/sharptalk/.wine
 ENV WINEARCH win32
+ENV DISPLAY :0
 WORKDIR /home/sharptalk
 
-RUN WINEPREFIX="/home/sharptalk/.wine" WINEARCH="win32" winetricks --unattended dotnet45
+# looks like we can get away with 4.0 even though the lib asks for v4.5
+# (saves a lil bit of space)
+RUN winetricks --unattended dotnet40
 
 COPY lib lib
 COPY .asoundrc .
