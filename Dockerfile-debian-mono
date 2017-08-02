@@ -1,19 +1,23 @@
-FROM i386/alpine:3.4
+FROM debian:stretch-slim
 
-RUN adduser -S sharptalk
+RUN useradd -ms /bin/bash sharptalk
 
-RUN apk update && apk add --no-cache \
-    curl \
-    xvfb
-
-RUN apk add --no-cache \
-    --repository https://dl-3.alpinelinux.org/alpine/edge/community/ \
-    wine=2.0.2-r0
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        procps \
+        wine \
+        wine32 \
+        xauth \
+        xvfb \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY bin/winetricks /usr/local/bin/
 
 RUN mkdir -p /usr/share/wine/mono/ && cd /usr/share/wine/mono/ \
-    && curl -O https://dl.winehq.org/wine/wine-mono/4.6.4/wine-mono-4.6.4.msi \
+    && curl -O https://dl.winehq.org/wine/wine-mono/4.5.6/wine-mono-4.5.6.msi \
     && chown -R sharptalk .
 
 USER sharptalk

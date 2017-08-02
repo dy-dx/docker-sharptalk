@@ -1,0 +1,37 @@
+FROM debian:stretch-slim
+
+RUN useradd -ms /bin/bash sharptalk
+
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        cabextract \
+        procps \
+        wine \
+        wine32 \
+        xauth \
+        xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY bin/winetricks /usr/local/bin/
+
+USER sharptalk
+ENV WINEPREFIX /home/sharptalk/.wine
+ENV WINEARCH win32
+# Silence all the "fixme: blah blah blah" messages from wine
+ENV WINEDEBUG fixme-all
+ENV DISPLAY :0
+WORKDIR /home/sharptalk
+
+# looks like we can get away with 4.0 even though the lib asks for v4.5
+# (saves a lil bit of space)
+RUN winetricks --unattended dotnet40 \
+    && while pgrep wineserver >/dev/null; do echo "Waiting for wineserver"; sleep 1; done
+
+COPY lib lib
+COPY .asoundrc .
+COPY bin/run.sh .
+
+ENTRYPOINT ["./run.sh"]
